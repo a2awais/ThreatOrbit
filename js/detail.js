@@ -1,14 +1,13 @@
 // ─────────────────────────────────────────────────────────────────
 // detail.js — Group intelligence dossier panel
-// Shared logic — same panel used across all four views
 // ─────────────────────────────────────────────────────────────────
 
-import { NATION_COLORS, MOTIVATION, TACTIC } from './config.js';
+import { NATION_COLORS, MOTIVATION_COLORS, TACTIC_COLORS } from './config.js';
 
-const panel    = document.getElementById('detail');
-const nameEl   = document.getElementById('dp-name');
-const subEl    = document.getElementById('dp-sub');
-const bodyEl   = document.getElementById('dp-body');
+const panel  = document.getElementById('detail');
+const nameEl = document.getElementById('dp-name');
+const subEl  = document.getElementById('dp-sub');
+const bodyEl = document.getElementById('dp-body');
 const closeBtn = document.getElementById('dp-close');
 
 closeBtn.addEventListener('click', close);
@@ -16,7 +15,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
 
 export function open(g) {
   const col = NATION_COLORS[g.country] || '#4da6e8';
-  const mot = MOTIVATION[g.motivation] || MOTIVATION.espionage;
+  const mot = MOTIVATION_COLORS[g.motivation] || MOTIVATION_COLORS.espionage;
   const isActive = g.last_seen >= 2024;
 
   nameEl.textContent = g.name;
@@ -24,7 +23,7 @@ export function open(g) {
 
   let h = '';
 
-  // ── Badges + Meta ──────────────────────────────────────────────
+  // ── Badges + meta ─────────────────────────────────────────────
   h += `<div class="ds">
     <div class="dp-badges">
       <span class="dpbadge" style="color:${col};border-color:${col}50;background:${col}18">
@@ -54,7 +53,7 @@ export function open(g) {
   if ((g.ttps || []).length) {
     h += `<div class="ds"><div class="ds-title">MITRE ATT&amp;CK TTPs — ${g.ttps.length}</div><div class="ttp-list">`;
     for (const [id, name, tactic] of g.ttps) {
-      const t   = TACTIC[tactic] || { label: tactic, col: '#888' };
+      const t = TACTIC_COLORS[tactic] || { label: tactic, col: '#888' };
       const url = `https://attack.mitre.org/techniques/${id.replace('.', '/')}/`;
       h += `<div class="ttp" style="border-color:${t.col}">
         <div class="ttp-id" style="color:${t.col}"><a href="${url}" target="_blank" rel="noopener">${id}</a></div>
