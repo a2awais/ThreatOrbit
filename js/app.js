@@ -2,77 +2,121 @@
 // app.js — ThreatOrbit entry point
 // ─────────────────────────────────────────────────────────────────
 
-import { GROUPS }                                           from '../data/groups.js';
-import { NATION_COLORS, MOTIVATION_COLORS, COUNTRY_COORDS } from './config.js';
-import { initGlobe, updateGlobe }                           from './globe.js';
-import { open as openDetail }                               from './detail.js';
+import { GROUPS }                                            from '../data/groups.js';
+import { NATION_COLORS, MOTIVATION_COLORS, COUNTRY_COORDS }  from './config.js';
+import { initGlobe, updateGlobe }                            from './globe.js';
+import { open as openDetail }                                from './detail.js';
 
 let visible      = [...GROUPS];
 let activeNation = null;
 let activeMot    = null;
 let searchQ      = '';
 
+// ── Boot ─────────────────────────────────────────────────────────
 function boot() {
-  buildStats();
-  buildCountryList();
-  buildLegend();
-  bindFilters();
-  bindSearch();
-  document.getElementById('globe-loading').style.display = 'none';
-  initGlobe(visible, COUNTRY_COORDS, NATION_COLORS, openDetail);
+  const loadingEl = document.getElementById('globe-loading');
+
+  try {
+    buildStats();
+    buildCountryList();
+    buildLegend();
+    bindFilters();
+    bindSearch();
+
+    // Pass onReady callback — loading screen hides only after first render
+    initGlobe(
+      visible,
+      COUNTRY_COORDS,
+      NATION_COLORS,
+      openDetail,
+      () => { loadingEl.style.display = 'none'; }   // ← hides on first frame
+    );
+
+  } catch (err) {
+    console.error('ThreatOrbit boot error:', err);
+    loadingEl.innerHTML = `
+      <div style="text-align:center;padding:32px;max-width:420px">
+        <div style="font-family:var(--mono);font-size:13px;color:var(--red);margin-bottom:12px">
+          Failed to initialise globe
+        </div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--t3);line-height:1.8;word-break:break-all">
+          ${err.message || String(err)}
+        </div>
+        <div style="font-size:11px;color:var(--t3);margin-top:16px;line-height:1.8">
+          Open browser DevTools (F12) → Console for full trace.
+        </div>
+      </div>`;
+  }
 }
 
+// ── Stats bar ─────────────────────────────────────────────────────
 function buildStats() {
-  const cves = new Set(GROUPS.flatMap(g => (g.cves||[]).map(c=>c[0])));
+  const cves = new Set(GROUPS.flatMap(g => (g.cves || []).map(c => c[0])));
   document.getElementById('s-groups').textContent = GROUPS.length;
   document.getElementById('s-cves').textContent   = cves.size;
 }
 
+// ── Country sidebar ───────────────────────────────────────────────
 function buildCountryList() {
   const byCountry = {};
-  for (const g of GROUPS) byCountry[g.country] = (byCountry[g.country]||0)+1;
-  const ORDER = ['Russia','China','North Korea','Iran','Vietnam','India','Pakistan','Turkey','Belarus','Israel','Lebanon','Palestine'];
-  const nations = [...ORDER.filter(n=>byCountry[n]), ...Object.keys(byCountry).filter(n=>!ORDER.includes(n))];
-  const list = document.getElementById('c-list');
+  for (const g of GROUPS) byCountry[g.country] = (byCountry[g.country] || 0) + 1;
+
+  const ORDER   = ['Russia','China','North Korea','Iran','Vietnam','India','Pakistan','Turkey','Belarus','Israel','Lebanon','Palestine'];
+  const nations = [...ORDER.filter(n => byCountry[n]), ...Object.keys(byCountry).filter(n => !ORDER.includes(n))];
+  const list    = document.getElementById('c-list');
+
   for (const nation of nations) {
     const col = NATION_COLORS[nation] || '#4da6e8';
     const el  = document.createElement('div');
     el.className = 'c-row';
     el.innerHTML = `<span class="c-dot" style="background:${col}"></span><span class="c-name">${nation}</span><span class="c-cnt">${byCountry[nation]}</span>`;
     el.addEventListener('click', () => {
-      if (activeNation===nation) { activeNation=null; el.classList.remove('on'); }
-      else { document.querySelectorAll('.c-row').forEach(r=>r.classList.remove('on')); activeNation=nation; el.classList.add('on'); }
+      if (activeNation === nation) {
+        activeNation = null;
+        el.classList.remove('on');
+      } else {
+        document.querySelectorAll('.c-row').forEach(r => r.classList.remove('on'));
+        activeNation = nation;
+        el.classList.add('on');
+      }
       applyFilters();
     });
     list.appendChild(el);
   }
 }
 
+// ── Legend ────────────────────────────────────────────────────────
 function buildLegend() {
   document.getElementById('legend-content').innerHTML =
-    Object.entries(NATION_COLORS).map(([n,c]) =>
+    Object.entries(NATION_COLORS).map(([n, c]) =>
       `<div class="ek-row"><span class="c-dot" style="background:${c}"></span>${n}</div>`
     ).join('') +
-    `<div style="margin-top:12px;font-size:11px;color:var(--t3);line-height:1.8">
-      Pulse size = group count<br>Click marker = open dossier<br>Drag to rotate · Scroll to zoom
+    `<div style="margin-top:12px;font-size:11px;color:var(--t3);line-height:1.9">
+      Pulse size = group count<br>
+      Click marker = open dossier<br>
+      Drag to rotate · Scroll to zoom
     </div>`;
 }
 
+// ── Motivation chips ──────────────────────────────────────────────
 function bindFilters() {
   document.querySelectorAll('.chip[data-mot]').forEach(chip => {
     chip.addEventListener('click', () => {
       const m = chip.dataset.mot;
-      if (activeMot===m) { activeMot=null; chip.className='chip'; }
-      else {
-        document.querySelectorAll('.chip[data-mot]').forEach(c=>c.className='chip');
-        activeMot=m;
-        chip.classList.add('on-'+{espionage:'esp',financial:'fin',destructive:'des',mixed:'mix'}[m]);
+      if (activeMot === m) {
+        activeMot = null;
+        chip.className = 'chip';
+      } else {
+        document.querySelectorAll('.chip[data-mot]').forEach(c => c.className = 'chip');
+        activeMot = m;
+        chip.classList.add('on-' + { espionage:'esp', financial:'fin', destructive:'des', mixed:'mix' }[m]);
       }
       applyFilters();
     });
   });
 }
 
+// ── Search ────────────────────────────────────────────────────────
 function bindSearch() {
   document.getElementById('g-search').addEventListener('input', e => {
     searchQ = e.target.value.trim().toLowerCase();
@@ -80,14 +124,17 @@ function bindSearch() {
   });
 }
 
+// ── Filter logic ──────────────────────────────────────────────────
 function applyFilters() {
   visible = GROUPS.filter(g => {
-    if (activeNation && g.country!==activeNation) return false;
-    if (activeMot    && g.motivation!==activeMot) return false;
+    if (activeNation && g.country    !== activeNation) return false;
+    if (activeMot    && g.motivation !== activeMot)    return false;
     if (searchQ) {
-      const hay = [g.name,g.apt,g.aka,g.country,g.agency,
-        ...(g.sectors||[]),...(g.malware||[]).map(m=>m[0]),
-        ...(g.cves||[]).map(c=>c[0])
+      const hay = [
+        g.name, g.apt, g.aka, g.country, g.agency,
+        ...(g.sectors || []),
+        ...(g.malware || []).map(m => m[0]),
+        ...(g.cves    || []).map(c => c[0]),
       ].filter(Boolean).join(' ').toLowerCase();
       if (!hay.includes(searchQ)) return false;
     }
@@ -96,4 +143,5 @@ function applyFilters() {
   updateGlobe(visible);
 }
 
+// ── Go ────────────────────────────────────────────────────────────
 boot();
