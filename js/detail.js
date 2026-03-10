@@ -4,26 +4,32 @@
 
 import { NATION_COLORS, MOTIVATION_COLORS, TACTIC_COLORS } from './config.js';
 
-const panel  = document.getElementById('detail');
-const nameEl = document.getElementById('dp-name');
-const subEl  = document.getElementById('dp-sub');
-const bodyEl = document.getElementById('dp-body');
-const closeBtn = document.getElementById('dp-close');
+// ── DOM refs resolved lazily (not at import time) ─────────────────
+// Wrapping in getters avoids null-crash if module loads before DOM is ready
+function panel()    { return document.getElementById('detail'); }
+function nameEl()   { return document.getElementById('dp-name'); }
+function subEl()    { return document.getElementById('dp-sub'); }
+function bodyEl()   { return document.getElementById('dp-body'); }
 
-closeBtn.addEventListener('click', close);
+// Wire close button once, safely
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('dp-close');
+  if (btn) btn.addEventListener('click', close);
+});
 document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
 
+// ── Open dossier panel ────────────────────────────────────────────
 export function open(g) {
-  const col = NATION_COLORS[g.country] || '#4da6e8';
-  const mot = MOTIVATION_COLORS[g.motivation] || MOTIVATION_COLORS.espionage;
+  const col      = NATION_COLORS[g.country] || '#4da6e8';
+  const mot      = MOTIVATION_COLORS[g.motivation] || MOTIVATION_COLORS.espionage;
   const isActive = g.last_seen >= 2024;
 
-  nameEl.textContent = g.name;
-  subEl.textContent  = [g.apt, g.country, g.agency].filter(Boolean).join(' · ');
+  nameEl().textContent = g.name;
+  subEl().textContent  = [g.apt, g.country, g.agency].filter(Boolean).join(' · ');
 
   let h = '';
 
-  // ── Badges + meta ─────────────────────────────────────────────
+  // Badges + meta
   h += `<div class="ds">
     <div class="dp-badges">
       <span class="dpbadge" style="color:${col};border-color:${col}50;background:${col}18">
@@ -43,17 +49,17 @@ export function open(g) {
     <div class="dp-desc">${g.description}</div>
   </div>`;
 
-  // ── Sectors ────────────────────────────────────────────────────
+  // Sectors
   if ((g.sectors || []).length) {
     h += `<div class="ds"><div class="ds-title">Targeted Sectors</div>
     <div class="sectors-row">${g.sectors.map(s => `<span class="sec-badge">${s}</span>`).join('')}</div></div>`;
   }
 
-  // ── TTPs ───────────────────────────────────────────────────────
+  // TTPs
   if ((g.ttps || []).length) {
     h += `<div class="ds"><div class="ds-title">MITRE ATT&amp;CK TTPs — ${g.ttps.length}</div><div class="ttp-list">`;
     for (const [id, name, tactic] of g.ttps) {
-      const t = TACTIC_COLORS[tactic] || { label: tactic, col: '#888' };
+      const t   = TACTIC_COLORS[tactic] || { label: tactic, col: '#888' };
       const url = `https://attack.mitre.org/techniques/${id.replace('.', '/')}/`;
       h += `<div class="ttp" style="border-color:${t.col}">
         <div class="ttp-id" style="color:${t.col}"><a href="${url}" target="_blank" rel="noopener">${id}</a></div>
@@ -64,7 +70,7 @@ export function open(g) {
     h += `</div></div>`;
   }
 
-  // ── Malware ────────────────────────────────────────────────────
+  // Malware
   if ((g.malware || []).length) {
     h += `<div class="ds"><div class="ds-title">Malware &amp; Tools — ${g.malware.length}</div><div class="mal-list">`;
     for (const [n, tp, pl] of g.malware)
@@ -72,7 +78,7 @@ export function open(g) {
     h += `</div></div>`;
   }
 
-  // ── CVEs ───────────────────────────────────────────────────────
+  // CVEs
   if ((g.cves || []).length) {
     h += `<div class="ds"><div class="ds-title">Exploited CVEs — ${g.cves.length}</div>
     <table class="cvt"><thead><tr><th>CVE</th><th>CVSS</th><th>Product</th><th>Year</th></tr></thead><tbody>`;
@@ -86,7 +92,7 @@ export function open(g) {
     h += `</tbody></table></div>`;
   }
 
-  // ── Detections ─────────────────────────────────────────────────
+  // Detections
   if ((g.detections || []).length) {
     h += `<div class="ds"><div class="ds-title">Advisories &amp; Detection Resources</div><div class="det-list">`;
     for (const [src, title, url] of g.detections)
@@ -94,7 +100,7 @@ export function open(g) {
     h += `</div></div>`;
   }
 
-  // ── Members ────────────────────────────────────────────────────
+  // Members
   if ((g.members || []).length) {
     h += `<div class="ds"><div class="ds-title">Known Members — ${g.members.length}</div>
     <table class="mem-tbl"><thead><tr><th>Name</th><th>Role</th><th>Status</th></tr></thead><tbody>`;
@@ -105,10 +111,12 @@ export function open(g) {
     h += `</tbody></table></div>`;
   }
 
-  bodyEl.innerHTML = h;
-  panel.classList.add('on');
+  bodyEl().innerHTML = h;
+  panel().classList.add('on');
 }
 
+// ── Close ─────────────────────────────────────────────────────────
 export function close() {
-  panel.classList.remove('on');
+  const p = panel();
+  if (p) p.classList.remove('on');
 }
