@@ -1,0 +1,35 @@
+{
+  "name": "Group Display Name",
+  "apt": "APT##",
+  "aka": "Alias1 · Alias2 · Alias3",
+  "country": "Russia",
+  "agency": "GRU Unit XXXXX",
+  "motivation": "espionage",
+  "active_since": 2015,
+  "last_seen": 2025,
+  "confidence": "high",
+  "sectors": ["Government", "Military"],
+  "targets": ["USA", "Ukraine"],
+  "description": "One paragraph summary of the group's operations, key campaigns, and what makes them distinct.",
+  "ttps": [
+    ["T1566.001", "Spearphishing Attachment", "initial-access"],
+    ["T1059.001", "PowerShell", "execution"],
+    ["T1055",    "Process Injection",         "defense-evasion"],
+    ["T1003",    "OS Credential Dumping",      "credential-access"]
+  ],
+  "malware": [
+    ["ToolName",  "RAT",      "Windows"],
+    ["Loader",    "Loader",   "Windows/Linux"],
+    ["Backdoor",  "Backdoor", "Windows"]
+  ],
+  "cves": [
+    ["CVE-YYYY-XXXXX", 9.8, "Affected Product / Vendor", 2023]
+  ],
+  "detections": [
+    ["CISA", "AA##-###A — Advisory Title", "https://www.cisa.gov/..."],
+    ["DoJ",  "Indictment — Actor Name",    "https://www.justice.gov/..."]
+  ],
+  "members": [
+    ["Full Name", "Role description", "indicted"]
+  ]
+}
