@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ThreatNexus — APT Analyst Workbench</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="tb-brand">
+      <svg class="tb-logo" viewBox="0 0 32 32" fill="none">
+        <rect x="1.5" y="1.5" width="29" height="29" rx="3" stroke="#4da6e8" stroke-width="1" opacity=".3"/>
+        <polygon points="16,3 29,16 16,29 3,16" fill="none" stroke="#4da6e8" stroke-width="1.2" opacity=".6"/>
+        <circle cx="16" cy="3"  r="2" fill="#4da6e8" opacity=".8"/>
+        <circle cx="29" cy="16" r="2" fill="#4da6e8" opacity=".8"/>
+        <circle cx="16" cy="29" r="2" fill="#4da6e8" opacity=".8"/>
+        <circle cx="3"  cy="16" r="2" fill="#4da6e8" opacity=".8"/>
+        <circle cx="16" cy="16" r="3.5" fill="#4da6e8"/>
+      </svg>
+      <div>
+        <div class="tb-name">ThreatNexus</div>
+        <div class="tb-desc">APT Analyst Workbench · Open Source</div>
+      </div>
+    </div>
+    <div class="tb-div"></div>
+    <div class="tabs">
+      <button class="tab on" data-view="cluster">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="3"/><circle cx="19" cy="19" r="3"/><circle cx="5" cy="19" r="3"/><path d="M12 8v3m-5.2 5.2 3.7-2.2M16.5 14l-3.5-3"/></svg>
+        Cluster Graph
+      </button>
+      <button class="tab" data-view="diamond">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 2 10 10-10 10L2 12Z"/></svg>
+        Diamond Model
+      </button>
+      <button class="tab" data-view="matrix">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        TTP Matrix
+      </button>
+      <button class="tab" data-view="sector">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15 15 0 0 1 0 20M2 12h20"/></svg>
+        Sector Pivot
+      </button>
+    </div>
+    <div class="tb-div"></div>
+    <div class="tb-search">
+      <svg class="tb-search-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="g-search" type="text" placeholder="Search groups, malware, CVEs, TTPs…" autocomplete="off">
+    </div>
+    <div class="tb-stats">
+      <div class="tb-stat"><span class="tb-stat-val" id="s-groups">—</span><span class="tb-stat-lbl">groups</span></div>
+      <div class="tb-stat"><span class="tb-stat-val" id="s-indicted">—</span><span class="tb-stat-lbl">indicted</span></div>
+      <div class="tb-stat"><span class="tb-stat-val" id="s-cves">—</span><span class="tb-stat-lbl">CVEs</span></div>
+      <div class="tb-stat"><span class="tb-stat-val" id="s-edges">—</span><span class="tb-stat-lbl">links</span></div>
+    </div>
+  </header>
+
+  <div class="body">
+    <aside class="sidebar">
+      <div class="sb-scroll">
+        <div class="sb-sec">
+          <div class="sb-sec-title">Motivation</div>
+          <div class="chips">
+            <span class="chip" data-mot="espionage">Espionage</span>
+            <span class="chip" data-mot="financial">Financial</span>
+            <span class="chip" data-mot="destructive">Destructive</span>
+            <span class="chip" data-mot="mixed">Mixed</span>
+          </div>
+        </div>
+        <div class="sb-sec">
+          <div class="sb-sec-title">Nation-State</div>
+          <div id="c-list" class="c-list"></div>
+        </div>
+        <div class="sb-sec" id="cluster-legend">
+          <div class="sb-sec-title">Edge Types</div>
+          <div class="edge-key">
+            <div class="ek-row"><div class="ek-line" style="background:var(--purple)"></div>Shared malware</div>
+            <div class="ek-row"><div class="ek-line" style="background:var(--red)"></div>Shared CVE</div>
+            <div class="ek-row"><div class="ek-line" style="background:var(--blue)"></div>Shared TTP</div>
+          </div>
+          <div style="margin-top:10px;font-size:11px;color:var(--t3);line-height:1.8">Node size = TTP count<br>Drag · Scroll to zoom</div>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <!-- Loading -->
+      <div id="app-loading" class="view on" style="align-items:center;justify-content:center;gap:12px">
+        <div class="loading-spinner"></div>
+        <div style="font-family:var(--mono);font-size:12px;color:var(--t3)">Loading…</div>
+      </div>
+      <!-- Views -->
+      <div id="cluster-view" class="view"><svg id="cluster-svg"></svg><div id="ctip"></div></div>
+      <div id="diamond-view" class="view"><div class="dv-scroll"><div id="dv-grid" class="dv-grid"></div></div></div>
+      <div id="matrix-view" class="view">
+        <div class="matrix-wrap">
+          <div class="matrix-hdr"><h2>TTP Coverage Heatmap</h2><p>Top 30 techniques by group count. Click any cell to open the group dossier.</p></div>
+          <div id="matrix-inner"></div>
+        </div>
+      </div>
+      <div id="sector-view" class="view">
+        <div class="sv-scroll">
+          <div class="sv-hdr"><h2>Who's Hunting You?</h2><p>Select your industry to see every APT group targeting it, ranked by composite threat score.</p></div>
+          <div id="sector-chips" class="sector-chips"></div>
+          <div id="sector-results" class="sv-results"><div class="sv-empty">← Select a sector above</div></div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="detail" id="detail">
+      <div class="dp-head">
+        <div class="dp-titles">
+          <div class="dp-name" id="dp-name"></div>
+          <div class="dp-sub"  id="dp-sub"></div>
+        </div>
+        <button class="dp-close" id="dp-close">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="dp-body" id="dp-body"></div>
+    </aside>
+  </div>
+
+  <!-- D3 loaded as classic script before the module -->
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
