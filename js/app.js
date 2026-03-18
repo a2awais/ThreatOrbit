@@ -168,5 +168,28 @@ function applyFilters() {
   updateGlobe(visible);
 }
 
+
+// ── Brand click → reset to home ────────────────────────────────────
+function bindHomeNav() {
+  const brand = document.querySelector('.tb-brand');
+  if (!brand) return;
+  brand.style.cursor = 'pointer';
+  brand.title = 'Return to globe view';
+  brand.addEventListener('click', () => {
+    // Close detail panel
+    document.getElementById('detail').classList.remove('on');
+    // Clear all filters
+    activeNation = null;
+    activeMot    = null;
+    searchQ      = '';
+    document.querySelectorAll('.c-row').forEach(r => r.classList.remove('on'));
+    document.querySelectorAll('.chip[data-mot]').forEach(c => c.className = 'chip');
+    document.getElementById('g-search').value = '';
+    // Reset globe to full group list
+    visible = [...GROUPS];
+    updateGlobe(visible);
+  });
+}
+
 // ── Go ──────────────────────────────────────────────────────────────
 boot();
