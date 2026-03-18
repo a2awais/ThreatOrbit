@@ -283,7 +283,7 @@ export const GROUPS = [
       "EU",
       "NATO"
     ],
-    "description": "Most destructive cyberwarfare unit on record. Ukraine power grid attacks (2015-16), NotPetya (~$10B), Industroyer2 (2022 HV substations). Wiper deployments coordinate with kinetic military ops.",
+    "description": "Most destructive cyberwarfare unit on record. Ukraine power grid attacks (2015-16), NotPetya (~$10B global damage), Industroyer2 (2022). In Q2-Q3 2025 deployed Zerolot and Sting data wipers against Ukrainian government, energy, logistics and grain sector organisations \u2014 assessed by ESET as economic warfare. 40% of all APT activity tracked globally in H1-H2 2025 attributed to Russian-linked groups, with Sandworm leading destructive operations.",
     "ttps": [
       [
         "T1190",
@@ -341,6 +341,16 @@ export const GROUPS = [
         "BlackEnergy",
         "Toolkit",
         "Windows/Linux"
+      ],
+      [
+        "Zerolot",
+        "Data Wiper",
+        "Windows"
+      ],
+      [
+        "Sting",
+        "Data Wiper",
+        "Windows"
       ]
     ],
     "cves": [
@@ -367,6 +377,11 @@ export const GROUPS = [
         "DoJ",
         "Indictment \u2014 Six GRU Officers (NotPetya)",
         "https://www.justice.gov/opa/pr/six-russian-gru-officers-charged-connection-worldwide-deployment-destructive-malware"
+      ],
+      [
+        "ESET",
+        "APT Activity Report H1-H2 2025 \u2014 Sandworm Wipers",
+        "https://www.eset.com/int/business/resource-center/eset-apt-activity-report/"
       ]
     ],
     "members": [
@@ -781,7 +796,7 @@ export const GROUPS = [
       "EU",
       "NATO"
     ],
-    "description": "Dual-purpose group \u2014 Cuba ransomware (financial) and state espionage. In 2024 chained two zero-days (CVE-2024-9680 + CVE-2024-49039) for zero-interaction code execution.",
+    "description": "Dual-purpose Russia-aligned group \u2014 Cuba ransomware (financial) and state espionage. In 2024 chained CVE-2024-9680 + CVE-2024-49039 for zero-click compromise of Ukrainian/NATO targets. Mid-2025 exploited WinRAR zero-day (CVE-2025-31334) enabling code execution via crafted archive with no user interaction beyond opening. ESET identified as one of the most active Russia-aligned groups in H1-H2 2025.",
     "ttps": [
       [
         "T1566.001",
@@ -844,6 +859,12 @@ export const GROUPS = [
         7.8,
         "Microsoft Office OLE",
         2023
+      ],
+      [
+        "CVE-2025-31334",
+        7.5,
+        "WinRAR Code Execution via crafted archive",
+        2025
       ]
     ],
     "detections": [
@@ -1014,7 +1035,7 @@ export const GROUPS = [
       "Taiwan",
       "Australia"
     ],
-    "description": "Pre-positioned inside US critical infrastructure for disruptive attacks in a Taiwan conflict scenario. Exclusively uses LotL techniques and SOHO botnets. Maintained access 5+ years before discovery.",
+    "description": "Pre-positioned inside US critical infrastructure for disruptive attacks contingent on a Taiwan conflict. CISA confirmed persistence inside some victim networks for at least five years, including repeated NTDS.dit extraction across multiple domain controllers. Exclusively uses living-off-the-land binaries (wmic, netsh, ntdsutil) and compromised SOHO routers as C2 relay infrastructure. Targeted communications, energy, transportation and water/wastewater sectors. Assessed as pre-positioning for OT disruption, not traditional espionage.",
     "ttps": [
       [
         "T1190",
@@ -1122,7 +1143,7 @@ export const GROUPS = [
       "India",
       "Southeast Asia"
     ],
-    "description": "Most significant US telecom breach in history \u2014 compromised Verizon, AT&T, T-Mobile, Lumen in 2024. Accessed lawful intercept (CALEA wiretap) infrastructure. Exploits Cisco IOS vulnerabilities extensively.",
+    "description": "Most significant US telecom breach in history \u2014 compromised Verizon, AT&T, T-Mobile and Lumen in 2024, accessing lawful intercept systems and call records of senior US officials. CISA/NSA/FBI joint advisory AA25-239A (August 2025) confirmed operations spanning 80+ countries with persistent router-level implants in carrier backbone infrastructure. In 2025 exploited CVE-2025-20333 (CVSS 9.9) in Cisco ASA/FTD. Active since at least 2019; SparrowDoor backdoor deployed against US financial sector trade group March 2025 (ESET).",
     "ttps": [
       [
         "T1190",
@@ -1185,12 +1206,23 @@ export const GROUPS = [
         7.2,
         "Cisco IOS XE Priv Esc",
         2023
+      ],
+      [
+        "CVE-2025-20333",
+        9.9,
+        "Cisco ASA/FTD VPN RCE (0day)",
+        2025
       ]
     ],
     "detections": [
       [
         "CISA",
-        "AA24-038A \u2014 Enhanced Guidance for Salt Typhoon Telecom Victims",
+        "AA25-239A \u2014 Countering PRC State-Sponsored Actors (Aug 2025)",
+        "https://www.cisa.gov/news-events/cybersecurity-advisories/aa25-239a"
+      ],
+      [
+        "CISA",
+        "AA24-038A \u2014 Salt Typhoon Telecom Compromise",
         "https://www.cisa.gov/news-events/cybersecurity-advisories/aa24-038a"
       ]
     ],
@@ -2717,7 +2749,7 @@ export const GROUPS = [
       "Saudi Arabia",
       "Turkey"
     ],
-    "description": "MOIS unit deploying legitimate RMM tools (AnyDesk, SimpleHelp) as C2 to blend with normal IT traffic. PhonyC2 is their custom PowerShell C2 framework. BugSleep backdoor deployed against Israel post-October 7.",
+    "description": "MOIS unit deploying legitimate RMM tools (AnyDesk, SimpleHelp) as C2 to blend with normal IT traffic. PhonyC2 and BugSleep are primary custom tools. In 2025 introduced internal spearphishing: after compromising a mailbox, sends phishing messages from that trusted internal account to colleagues \u2014 bypassing perimeter email filters entirely. Stood out in ESET APT Activity Report H1-H2 2025 for this novel TTP. Operates against Middle East, Israel, EU government targets under MOIS direction.",
     "ttps": [
       [
         "T1566.001",
@@ -3637,6 +3669,105 @@ export const GROUPS = [
         "ClearSky",
         "Lebanese Cedar APT Global Espionage Campaign",
         "https://www.clearskysec.com/lebanese-cedar/"
+      ]
+    ],
+    "members": []
+  },
+  {
+    "name": "TGR-STA-1030",
+    "apt": "",
+    "aka": "UNC6619",
+    "country": "China",
+    "agency": "Unknown \u2014 Asia-based, assessed nation-state, GMT+8 operating hours",
+    "motivation": "espionage",
+    "active_since": 2024,
+    "last_seen": 2025,
+    "confidence": "medium",
+    "sectors": [
+      "Government",
+      "Law Enforcement",
+      "Telecommunications",
+      "Finance",
+      "Energy"
+    ],
+    "targets": [
+      "Global",
+      "EU",
+      "Middle East",
+      "Southeast Asia",
+      "Africa"
+    ],
+    "description": "Newly designated (Palo Alto, Feb 2026) Asia-based cyberespionage group that compromised 70 government and critical infrastructure organisations across 37 countries in 12 months. Victims include national law enforcement, border control, ministries of interior/foreign affairs/finance/energy, elected officials, and national telecoms. By Nov-Dec 2025 had conducted active reconnaissance against government infrastructure in 155 countries. Uses phishing, exploitation kits, custom malware, Linux rootkits, webshells, and tunnelling/proxy tools. Prioritises targets with economic partnership ties to specific regional interests. Attribution pending \u2014 operating hours, language artefacts and tooling point to Asia/GMT+8 origin.",
+    "ttps": [
+      [
+        "T1566.002",
+        "Spearphishing Link",
+        "initial-access"
+      ],
+      [
+        "T1190",
+        "Exploit Public-Facing App",
+        "initial-access"
+      ],
+      [
+        "T1505.003",
+        "Web Shell",
+        "persistence"
+      ],
+      [
+        "T1014",
+        "Rootkit",
+        "defense-evasion"
+      ],
+      [
+        "T1572",
+        "Protocol Tunneling",
+        "command-and-control"
+      ],
+      [
+        "T1090",
+        "Proxy",
+        "command-and-control"
+      ],
+      [
+        "T1083",
+        "File and Directory Discovery",
+        "discovery"
+      ],
+      [
+        "T1041",
+        "Exfiltration Over C2",
+        "exfiltration"
+      ]
+    ],
+    "malware": [
+      [
+        "Custom Phishing Kit",
+        "Phishing Framework",
+        "Windows"
+      ],
+      [
+        "Linux Rootkit",
+        "Rootkit",
+        "Linux"
+      ],
+      [
+        "Custom Webshell",
+        "Web Shell",
+        "Linux/Windows"
+      ],
+      [
+        "Tunnelling Proxy Tool",
+        "Proxy/Tunnel",
+        "Linux"
+      ]
+    ],
+    "cves": [],
+    "detections": [
+      [
+        "Unit 42",
+        "TGR-STA-1030 \u2014 37-country Breach Report (Feb 2026)",
+        "https://www.csoonline.com/article/4128378/new-apt-group-breached-gov-and-critical-infrastructure-orgs-in-37-countries.html"
       ]
     ],
     "members": []
