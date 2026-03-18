@@ -9,7 +9,11 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 
-  <!-- Three.js importmap — MUST come before any module scripts -->
+  <!--
+    Three.js importmap — MUST be declared before any type="module" script.
+    'three'          → the core library
+    'three/addons/'  → prefix for OrbitControls and other extras
+  -->
   <script type="importmap">
   {
     "imports": {
@@ -18,30 +22,10 @@
     }
   }
   </script>
-
-  <!-- CDN timeout: if Three.js takes >12s to load, show helpful error -->
-  <script>
-    window._orbitTimeout = setTimeout(() => {
-      const el = document.getElementById('globe-loading');
-      if (el && el.style.display !== 'none') {
-        el.innerHTML = `
-          <div style="text-align:center;padding:32px;max-width:380px">
-            <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#e06060;margin-bottom:12px">
-              Three.js CDN is taking too long
-            </div>
-            <div style="font-size:12px;color:#5a7a96;line-height:1.9">
-              The globe requires Three.js from cdn.jsdelivr.net.<br>
-              Check your internet connection and refresh.<br><br>
-              If on a restricted network, try a different connection.
-            </div>
-          </div>`;
-      }
-    }, 12000);
-  </script>
 </head>
 <body>
 
-  <!-- ── TOP BAR ──────────────────────────────────────────────── -->
+  <!-- ── TOP BAR ─────────────────────────────────────────── -->
   <header class="topbar">
     <div class="tb-brand">
       <svg class="tb-logo" viewBox="0 0 32 32" fill="none">
@@ -66,7 +50,7 @@
       <input id="g-search" type="text" placeholder="Search groups, malware, CVEs…" autocomplete="off">
     </div>
 
-    <div class="chips" id="mot-chips">
+    <div class="chips">
       <span class="chip" data-mot="espionage">Espionage</span>
       <span class="chip" data-mot="financial">Financial</span>
       <span class="chip" data-mot="destructive">Destructive</span>
@@ -80,10 +64,10 @@
     </div>
   </header>
 
-  <!-- ── BODY ────────────────────────────────────────────────── -->
+  <!-- ── LAYOUT ───────────────────────────────────────────── -->
   <div class="body">
 
-    <!-- SIDEBAR -->
+    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sb-scroll">
         <div class="sb-sec">
@@ -97,17 +81,17 @@
       </div>
     </aside>
 
-    <!-- GLOBE CANVAS -->
+    <!-- Globe -->
     <main class="globe-wrap">
       <div id="globe-loading" class="loading">
         <div class="loading-spinner"></div>
-        <div class="loading-text">Loading Three.js &amp; globe data…</div>
+        <div id="loading-msg" class="loading-text">Initialising…</div>
       </div>
       <canvas id="globe-canvas"></canvas>
       <div id="tooltip" class="tooltip"></div>
     </main>
 
-    <!-- GROUP DETAIL PANEL -->
+    <!-- Detail panel -->
     <aside class="detail" id="detail">
       <div class="dp-head">
         <div class="dp-titles">
@@ -125,22 +109,11 @@
 
   </div>
 
-  <!-- App module — loads after importmap is registered -->
-  <script type="module">
-    // Clear CDN timeout once modules begin loading successfully
-    import('./js/app.js').then(() => {
-      clearTimeout(window._orbitTimeout);
-    }).catch(err => {
-      clearTimeout(window._orbitTimeout);
-      const el = document.getElementById('globe-loading');
-      if (el) el.innerHTML = `
-        <div style="text-align:center;padding:32px;max-width:420px">
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#e06060;margin-bottom:12px">Module load failed</div>
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5a7a96;line-height:1.8;word-break:break-all">${err.message}</div>
-          <div style="font-size:11px;color:#5a7a96;margin-top:14px">Open DevTools (F12) → Console for details.</div>
-        </div>`;
-    });
-  </script>
+  <!--
+    Single static module entry point.
+    app.js handles all error display internally — no wrapper needed here.
+  -->
+  <script type="module" src="js/app.js"></script>
 
 </body>
 </html>
