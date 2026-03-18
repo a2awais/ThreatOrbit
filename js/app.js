@@ -9,28 +9,36 @@ import { open as openDetail }                                from './detail.js';
 
 // ── Catch uncaught async errors (e.g. inside requestAnimationFrame) ──
 window.addEventListener('error', ev => {
-  showError(ev.message || String(ev));
+  // Don't swallow errors from other scripts (extensions, etc.)
+  if (!ev.filename || !ev.filename.includes(location.origin)) return;
+  showError(ev.message + (ev.filename ? ' (' + ev.filename.split('/').pop() + ':' + ev.lineno + ')' : ''));
 });
 window.addEventListener('unhandledrejection', ev => {
-  showError(ev.reason?.message || String(ev.reason));
+  const msg = ev.reason?.message || ev.reason?.toString() || 'Unhandled promise rejection';
+  showError(msg);
 });
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
 function showError(msg) {
   const el = document.getElementById('globe-loading');
   if (!el) return;
   el.style.display = 'flex';
-  el.innerHTML = `
-    <div style="text-align:center;padding:32px;max-width:420px">
-      <div style="font-family:var(--mono);font-size:13px;color:var(--red);margin-bottom:10px">
-        Initialisation error
-      </div>
-      <div style="font-family:var(--mono);font-size:11px;color:var(--t3);line-height:1.8;word-break:break-all">
-        ${msg}
-      </div>
-      <div style="font-size:11px;color:var(--t3);margin-top:14px">
-        Open DevTools → Console (F12) for the full stack trace.
-      </div>
-    </div>`;
+  // Use hardcoded hex values — stylesheet may not be loaded when this fires
+  el.innerHTML =
+    '<div style="text-align:center;padding:32px;max-width:440px;font-family:'IBM Plex Mono',monospace">' +
+      '<div style="font-size:13px;color:#e06060;margin-bottom:10px;font-weight:700">Globe failed to initialise</div>' +
+      '<div style="font-size:11px;color:#5a7a96;line-height:1.8;word-break:break-word;background:#0f1c2e;padding:12px;border-radius:6px;text-align:left">' +
+        escHtml(msg) +
+      '</div>' +
+      '<div style="font-size:11px;color:#5a7a96;margin-top:14px">Open DevTools → Console (F12) for the full trace.</div>' +
+    '</div>';
 }
 
 // ── State ──────────────────────────────────────────────────────────
@@ -63,7 +71,7 @@ function boot() {
 
   } catch (err) {
     console.error('ThreatOrbit boot error:', err);
-    showError(err.message || String(err));
+    showError(err.message || err.toString());
   }
 }
 
@@ -116,7 +124,7 @@ function buildLegend() {
     .map(([n, c]) => `<div class="ek-row"><span class="c-dot" style="background:${c}"></span>${n}</div>`)
     .join('');
   document.getElementById('legend-content').innerHTML = rows +
-    `<div style="margin-top:12px;font-size:11px;color:var(--t3);line-height:1.9">
+    `<div style="margin-top:12px;font-size:11px;color:#5a7a96;line-height:1.9">
       Pulse size = group count<br>
       Click marker = open dossier<br>
       Drag to rotate · Scroll to zoom
